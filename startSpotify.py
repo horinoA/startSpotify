@@ -1,7 +1,6 @@
 import pandas as pd
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
-import json as json
 import spotifyAPI as api
 
 client_id = api.client_id
@@ -13,5 +12,22 @@ spotify = spotipy.Spotify(
     client_credentials_manager=client_credentials_manager)
 
 name = "Stevie Wonder"
-result = spotify.search(q="artist:" + name, type="track")
-print(result)
+results = spotify.search(q='artist:' + name, type='artist')
+items = results['artists']['items']
+serch_uri = ''
+if len(items) > 0:
+    artist = items[0]
+    serch_uri = artist['uri']
+    print(artist['name'], artist['uri'], artist['images'][0]
+          ['url'])
+
+if serch_uri != '':
+    results = spotify.artist_albums(serch_uri, album_type='album')
+    albums = results['items']
+    while results['next']:
+        results = spotify.next(results)
+        albums.extend(results['items'])
+
+    for album in albums:
+        print(album['name'], album['release_date'],
+              album['total_tracks'], album['uri'])
